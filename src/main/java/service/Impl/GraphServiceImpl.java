@@ -1,12 +1,14 @@
 package service.Impl;
 
 import guru.nidi.graphviz.attribute.Label;
+import guru.nidi.graphviz.attribute.Color;
 import guru.nidi.graphviz.attribute.Named;
 import guru.nidi.graphviz.attribute.Style;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.model.Link;
 import guru.nidi.graphviz.model.MutableGraph;
+import guru.nidi.graphviz.model.Node;
 import model.Graph;
 import service.GraphService;
 
@@ -26,6 +28,18 @@ public class GraphServiceImpl implements GraphService {
 
     @Override
     public boolean addNodeToGraph(String nodeName) {
+        if(!nodeName.equals("")) {
+            MutableGraph g = graph.getGraph();
+            g.add(mutNode(nodeName));
+            graph.setGraph(g);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean addNodeToGraph(String nodeName, Color color) {
         if(!nodeName.equals("")) {
             MutableGraph g = graph.getGraph();
             g.add(mutNode(nodeName));
@@ -337,7 +351,8 @@ public class GraphServiceImpl implements GraphService {
     @Override
     public void color() {
         MutableGraph g = graph.getGraph();
-        Map<String, Color> nodesColors = new HashMap<>();
+        Color[] colors = {Color.RED, Color.GREEN, Color.BLUE, Color.MAGENTA, Color.CYAN, Color.ORANGE, Color.WHITE};
+        Map<String, Node> nodesColors = new HashMap<>();
         List<List<String>> edges = g.edges()
                 .stream()
                 .map(Link::name)
@@ -359,13 +374,8 @@ public class GraphServiceImpl implements GraphService {
                     adjacencyMatrixArr[i][j] = 1;
                 else
                     adjacencyMatrixArr[i][j] = 0;
-
-//                if(i == j)
-//                    adjacencyMatrixArr[i][j] = 1;
             }
         }
-
-//        adjacencyMatrix = Arrays.stream(adjacencyMatrixArr).collect(Collectors.toList());
 
         int[] color = new int[adjacencyMatrixArr.length];
         color[0] = 0;
@@ -400,51 +410,23 @@ public class GraphServiceImpl implements GraphService {
             }
         }
 
-        for(int u = 0; u < adjacencyMatrixArr.length; u++)
-            System.out.println("Node: " + nodes.get(u) + ", Assigned with Color: " + color[u]);
-//
-//
-//
-//
-//
-//
-//
-//
-//        Random rand = new Random();
-//        float r = rand.nextFloat();
-//        float gr = rand.nextFloat();
-//        float b = rand.nextFloat();
-//        Color randomColor = new Color(r, gr, b);
-//        for (int i = 0; i < adjacencyMatrix.size(); i++) {
-//            for (int j = 0; j < adjacencyMatrix.get(i).length; j++) {
-//                if (adjacencyMatrix.get(i)[j] == 0) {
-//                    if (!nodesColors.containsKey(nodes.get(i)))
-//                        nodesColors.put(nodes.get(i), randomColor);
-//
-//                    if (!nodesColors.containsKey(nodes.get(j)))
-//                        nodesColors.put(nodes.get(j), randomColor);
-//
-//
-//                    Integer[] tmp = new Integer[adjacencyMatrix.get(i).length];
-//                    for (int k = 0; k < tmp.length; k++)
-//                        tmp[k] = (adjacencyMatrix.get(i)[k] + adjacencyMatrix.get(j)[k] > 0) ? 1 : 0;
-//                    adjacencyMatrix.remove(i);
-//                    adjacencyMatrix.add(i, tmp);
-//                    adjacencyMatrix.remove(j);
-//                    i -= 1;
-//                } else if (j == adjacencyMatrix.get(i).length - 1) {
-//                    r = rand.nextFloat();
-//                    gr = rand.nextFloat();
-//                    b = rand.nextFloat();
-//                    randomColor = new Color(r, gr, b);
-//                    adjacencyMatrix.remove(i);
-//                    i -= 1;
-//                }
-//            }
-//        }
+        deleteAllNodes();
+        g = graph.getGraph();
+        guru.nidi.graphviz.model.Graph gc = graph().cluster();
+
+        for (int i = 0; i < adjacencyMatrixArr.length; i++)
+            nodesColors.put(nodes.get(i), node(nodes.get(i)).with(Style.FILLED, colors[color[i]]));
+
+        for (int i = 0; i < adjacencyMatrixArr.length; i++)
+            for (int j = i; j < adjacencyMatrixArr.length; j++)
+                if(adjacencyMatrixArr[i][j] == 1)
+                    gc = gc.with(nodesColors.get(nodes.get(i)).link(nodesColors.get(nodes.get(j))));
+
+//        for(int u = 0; u < adjacencyMatrixArr.length; u++)
+//            System.out.println("Node: " + nodes.get(u) + ", Assigned with Color: " + color[u]);
 
         try {
-            Graphviz.fromGraph(graph.getGraph())
+            Graphviz.fromGraph(gc)
                     .width(500)
                     .render(Format.PNG)
                     .toFile(new File("C:\\volodya\\ex2.png"));
