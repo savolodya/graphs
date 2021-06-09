@@ -291,6 +291,7 @@ public class GraphServiceImpl implements GraphService {
                 res.append(tmp);
                 resStack.push(tmp);
                 nodes.remove(node);
+                nodes.remove(tmp);
                 edges.remove(edge);
                 i = -1;
                 f = false;
@@ -300,7 +301,6 @@ public class GraphServiceImpl implements GraphService {
                 node = resStack.peek();
                 i = -1;
             } else if (i == edges.size() - 1) {
-                //resStack.pop();
                 f = true;
                 node = resStack.peek();
                 i = -1;
@@ -410,8 +410,6 @@ public class GraphServiceImpl implements GraphService {
             }
         }
 
-        deleteAllNodes();
-        g = graph.getGraph();
         guru.nidi.graphviz.model.Graph gc = graph().cluster();
 
         for (int i = 0; i < adjacencyMatrixArr.length; i++)

@@ -267,10 +267,10 @@ public class Entering {
         enterGraphButton.addActionListener(e -> {
             graphService.toImage();
 
-            JFrame jFrame = new JFrame("Graphs - search");
+            JFrame jFrame = new JFrame("Graphs - functions");
             jFrame.setSize(600, 400);
             jFrame.setContentPane(new Search(this.graphService).getPanelMain());
-            jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            jFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
             jFrame.setVisible(true);
         });
     }
